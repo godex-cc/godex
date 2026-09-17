@@ -19,6 +19,12 @@ on:
       linux_donor:
         description: "Optional: official Codex linux dist tarball URL (Linux build)"
         required: false
+      macos_asar_url:
+        description: "Optional: URL of the patched Godex app.asar (macOS job; repo ships no app payload)"
+        required: false
+      linux_asar_url:
+        description: "Optional: URL of the patched Godex app.asar (Linux job)"
+        required: false
 
 jobs:
   windows:
@@ -54,10 +60,14 @@ jobs:
         run: |
           curl -L "${{ github.event.inputs.macos_donor }}" -o donor.tar.gz
           mkdir donor && tar -xzf donor.tar.gz -C donor
+      - name: Fetch patched asar (optional)
+        if: ${{ github.event.inputs.macos_asar_url != '' }}
+        run: curl -L "${{ github.event.inputs.macos_asar_url }}" -o "${{ github.workspace }}/patched-app.asar"
       - name: Overlay build
         env:
           REPO: ${{ github.workspace }}
           DONOR: ${{ github.workspace }}/donor/Codex.app
+          ASAR: ${{ github.event.inputs.macos_asar_url != '' && format('{0}/patched-app.asar', github.workspace) || '' }}
         run: |
           python3 packaging/common/make-icons.py
           bash packaging/macos/build-macos.sh
@@ -75,10 +85,14 @@ jobs:
         run: |
           curl -L "${{ github.event.inputs.linux_donor }}" -o donor.tar.gz
           mkdir donor && tar -xzf donor.tar.gz -C donor
+      - name: Fetch patched asar (optional)
+        if: ${{ github.event.inputs.linux_asar_url != '' }}
+        run: curl -L "${{ github.event.inputs.linux_asar_url }}" -o "${{ github.workspace }}/patched-app.asar"
       - name: Overlay build
         env:
           REPO: ${{ github.workspace }}
           DONOR: ${{ github.workspace }}/donor
+          ASAR: ${{ github.event.inputs.linux_asar_url != '' && format('{0}/patched-app.asar', github.workspace) || '' }}
         run: |
           python3 packaging/common/make-icons.py
           bash packaging/linux/build-linux.sh

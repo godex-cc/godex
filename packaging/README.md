@@ -25,6 +25,19 @@ Godex 的运行时是 OpenAI 的 owl-Electron(Chromium 152 自研运行时,见
 
 宿主布局探测都写进了脚本,不匹配会直接报错退出。
 
+## 宿主(donor)来源
+
+- **macOS**:官方 Codex 桌面 App 的 darwin 发行包(dmg/zip)。社区镜像
+  [Wangnov/codex-app-mirror](https://github.com/Wangnov/codex-app-mirror/releases)
+  存档了各版本 `Codex-darwin-arm64-*.zip` / `Codex-darwin-x64-*.zip` /
+  `Codex-mac-*.dmg`(附带 SHA256SUMS,使用前自行核对哈希)。
+- **Windows**:官方安装包或镜像的 `OpenAI.Codex_*_x64.Msix`。
+- **Linux**:**官方从未发布过 Linux 版桌面 App**,镜像亦无 —— 无宿主可用,
+  `linux/build-linux.sh` 暂时没有可执行的输入,产物矩阵里的 Linux 行仅保留脚本。
+- 本仓库**不含** app 载荷:mac/linux 的 CI 作业需要同时提供
+  `*_donor`(宿主包 URL)与 `*_asar_url`(在 Windows 上按上文流程打好补丁的
+  app.asar 的 URL);或者在有完整 app/ 检出的机器上本地构建。
+
 ## 目录
 
 ```
