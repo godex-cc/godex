@@ -1,0 +1,90 @@
+# Godex 0.0.1 release pipeline (skeleton)
+#
+# The windows job is fully self-contained (icons + portable zip + manifest).
+# The mac/linux jobs use the "donor overlay" approach and expect the official
+# Codex dist for that platform as a manual input (workflow_dispatch artifact),
+# because the owl-Electron runtime cannot be rebuilt from this repository.
+#
+# Run:  gh workflow run release.yml   (or push a tag v0.0.1)
+
+name: release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      macos_donor:
+        description: "Optional: official Codex.app tarball URL (macOS build)"
+        required: false
+      linux_donor:
+        description: "Optional: official Codex linux dist tarball URL (Linux build)"
+        required: false
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pillow
+      - name: Build icons + portable zip + manifest
+        run: |
+          python packaging/common/make-icons.py
+          python packaging/common/make-zip.py
+      - name: Optional NSIS installer
+        run: |
+          choco install nsis -y --no-progress
+          makensis packaging/win/godex.nsi
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Godex-win32-x64
+          path: |
+            packaging/dist/Godex-*-win32-x64.zip
+            packaging/dist/Godex-*-win32-x64.zip.manifest.json
+            packaging/dist/Godex-*-win32-x64-setup.exe
+
+  macos:
+    if: ${{ github.event.inputs.macos_donor != '' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch donor app
+        run: |
+          curl -L "${{ github.event.inputs.macos_donor }}" -o donor.tar.gz
+          mkdir donor && tar -xzf donor.tar.gz -C donor
+      - name: Overlay build
+        env:
+          REPO: ${{ github.workspace }}
+          DONOR: ${{ github.workspace }}/donor/Codex.app
+        run: |
+          python3 packaging/common/make-icons.py
+          bash packaging/macos/build-macos.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Godex-macos
+          path: packaging/dist/Godex-*-macos.dmg
+
+  linux:
+    if: ${{ github.event.inputs.linux_donor != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch donor dist
+        run: |
+          curl -L "${{ github.event.inputs.linux_donor }}" -o donor.tar.gz
+          mkdir donor && tar -xzf donor.tar.gz -C donor
+      - name: Overlay build
+        env:
+          REPO: ${{ github.workspace }}
+          DONOR: ${{ github.workspace }}/donor
+        run: |
+          python3 packaging/common/make-icons.py
+          bash packaging/linux/build-linux.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Godex-linux-x64
+          path: |
+            packaging/dist/Godex-*-linux-x64.tar.gz
+            packaging/dist/Godex-*-linux-x64.deb

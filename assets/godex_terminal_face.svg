@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Transparent background -->
+  <circle cx="512" cy="512" r="402" fill="#FFFFFF" stroke="#000000" stroke-width="54"/>
+
+  <!-- Terminal visor -->
+  <rect x="158" y="300" width="708" height="358" rx="170" fill="#000000"/>
+
+  <!-- Left terminal chevron -->
+  <path d="M 294 392 L 414 478 L 294 564"
+        fill="none"
+        stroke="#FFFFFF"
+        stroke-width="52"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Right smiling/winking eye -->
+  <path d="M 646 535
+           C 666 476, 718 452, 770 468
+           C 798 477, 820 499, 830 526"
+        fill="none"
+        stroke="#FFFFFF"
+        stroke-width="48"
+        stroke-linecap="round"/>
+
+  <!-- Smile -->
+  <path d="M 402 744
+           C 430 792, 470 816, 514 816
+           C 558 816, 598 792, 626 744"
+        fill="none"
+        stroke="#000000"
+        stroke-width="48"
+        stroke-linecap="round"/>
+</svg>

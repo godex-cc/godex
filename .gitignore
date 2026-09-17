@@ -1,0 +1,19 @@
+# proprietary runtime & built artifacts (bring-your-own official Codex dist)
+app/
+data/
+packaging/dist/
+packaging/stage/
+*.asar
+
+# user secrets / local state
+godex-keys.env
+auth.json
+*.env
+
+# python
+__pycache__/
+*.pyc
+
+# editors/os
+Thumbs.db
+desktop.ini
